@@ -4,10 +4,7 @@
 
 ## AIM:
  
-
- 
-
-To write a C program to implement the Playfair Substitution technique.
+ To write a C program to implement the Playfair Substitution technique.
 
 ## DESCRIPTION:
 
@@ -18,10 +15,6 @@ To encrypt a message, one would break the message into digrams (groups of 2 lett
 2.	If the letters appear on the same row of your table, replace them with the letters to their immediate right respectively
 3.	If the letters appear on the same column of your table, replace them with the letters immediately below respectively
 4.	If the letters are not on the same row or column, replace them with the letters on the same row respectively but at the other pair of corners of the rectangle defined by the original pair.
-## EXAMPLE:
-![image](https://github.com/Hemamanigandan/EX-NO-2-/assets/149653568/e6858d4f-b122-42ba-acdb-db18ec2e9675)
-
- 
 
 ## ALGORITHM:
 
@@ -31,13 +24,134 @@ STEP-3: Arrange the keyword without duplicates in a 5*5 matrix in the row order 
 STEP-4: Group the plain text in pairs and match the corresponding corner letters by forming a rectangular grid.
 STEP-5: Display the obtained cipher text.
 
+## Program:
+```
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#define MX 5
 
+void playfair(char ch1, char ch2, char key[MX][MX]) {
+    int i, j, w, x, y, z;
+    FILE *out;
 
+    if ((out = fopen("cipher.txt", "a+")) == NULL) {
+        printf("File Corrupted.\n");
+        return;
+    }
 
-Program:
+    for (i = 0; i < MX; i++) {
+        for (j = 0; j < MX; j++) {
+            if (ch1 == key[i][j]) {
+                w = i;
+                x = j;
+            } else if (ch2 == key[i][j]) {
+                y = i;
+                z = j;
+            }
+        }
+    }
 
+    if (w == y) {
+        x = (x + 1) % 5;
+        z = (z + 1) % 5;
+        printf("%c%c", key[w][x], key[y][z]);
+        fprintf(out, "%c%c", key[w][x], key[y][z]);
+    } else if (x == z) {
+        w = (w + 1) % 5;
+        y = (y + 1) % 5;
+        printf("%c%c", key[w][x], key[y][z]);
+        fprintf(out, "%c%c", key[w][x], key[y][z]);
+    } else {
+        printf("%c%c", key[w][z], key[y][x]);
+        fprintf(out, "%c%c", key[w][z], key[y][x]);
+    }
 
+    fclose(out);
+}
 
+int main() {
+    int i, j, k = 0, l, m = 0, n;
+    char key[MX][MX], keyminus[25], keystr[10], str[25] = {0};
+    char alpa[26] = {
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+        'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+        'U', 'V', 'W', 'X', 'Y', 'Z'
+    };
 
+    printf("\nEnter key: ");
+    fgets(keystr, sizeof(keystr), stdin);
+    keystr[strcspn(keystr, "\n")] = 0;
 
-Output:
+    printf("\nEnter the plain text: ");
+    fgets(str, sizeof(str), stdin);
+    str[strcspn(str, "\n")] = 0;
+
+    n = strlen(keystr);
+    for (i = 0; i < n; i++) {
+        if (keystr[i] == 'j') keystr[i] = 'i';
+        else if (keystr[i] == 'J') keystr[i] = 'I';
+        keystr[i] = toupper(keystr[i]);
+    }
+
+    for (i = 0; i < strlen(str); i++) {
+        if (str[i] == 'j') str[i] = 'i';
+        else if (str[i] == 'J') str[i] = 'I';
+        str[i] = toupper(str[i]);
+    }
+
+    j = 0;
+    for (i = 0; i < 26; i++) {
+        for (k = 0; k < n; k++) {
+            if (keystr[k] == alpa[i]) break;
+            else if (alpa[i] == 'J') break;
+        }
+        if (k == n) {
+            keyminus[j] = alpa[i];
+            j++;
+        }
+    }
+
+    k = 0;
+    for (i = 0; i < MX; i++) {
+        for (j = 0; j < MX; j++) {
+            if (k < n) {
+                key[i][j] = keystr[k];
+                k++;
+            } else {
+                key[i][j] = keyminus[m];
+                m++;
+            }
+            printf("%c ", key[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("\n\nEntered text : %s\nCipher Text : ", str);
+    for (i = 0; i < strlen(str); i++) {
+        if (str[i] == 'J') str[i] = 'I';
+        if (str[i + 1] == '\0') {
+            playfair(str[i], 'X', key);
+        } else {
+            if (str[i + 1] == 'J') str[i + 1] = 'I';
+            if (str[i] == str[i + 1]) {
+                playfair(str[i], 'X', key);
+            } else {
+                playfair(str[i], str[i + 1], key);
+                i++;
+            }
+        }
+    }
+
+    printf("\nDecrypted text: %s", str);
+    return 0;
+}
+```
+## Output:
+
+![Screenshot 2025-03-19 102014](https://github.com/user-attachments/assets/ccf362f0-9a0b-40d7-af78-3a00c03f7f42)
+
+## Result
+
+The program is executed successfully
+
